@@ -1,0 +1,88 @@
+INSTALL AWS CLI V2
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+0. LOGIN tạo hồ sơ ban đầu trên AWS thôi
+	>	aws configure sso
+		SSO start URL [None]: https://d-966700c2ae.awsapps.com/start/
+		SSO Region [None]:  ap-southeast-1
+		CLI default client Region [None]: ap-southeast-1
+		CLI default output format [None]:
+		CLI profile name [AWSAdministratorAccess-749734782542]: {mykiot-admin}  <- chú ý, nhớ cái tên này
+
+1. LOGIN vào AWS
+	> aws sso login --profile {mykiot-admin}
+
+
+CREATE PROFILE EKS
+	>	aws --profile {mykiot-admin} eks update-kubeconfig --name mykiot-prod-eks-cluster --alias {mykiot-prod}
+		 
+		# Use mykiot-prod eks profile
+	>	kubectl config use-context {mykiot-prod}
+
+		# Get all PODs to test
+	>	kubectl get pods -n mykiot
+
+
+BUILD IMAGE
+
+#	Login to ecr một lần duy nhất
+	>	aws configure
+		AWS Access Key ID [None]: AKIA25D5M4ZHOLQOBNWZ
+		AWS Secret Access Key [None]: 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
+		Default region name [None]: ap-southeast-1
+		Default output format [None]:
+	# Bật docker lên trước
+
+	#	Login to ecr
+	>	aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 749734782542.dkr.ecr.ap-southeast-1.amazonaws.com
+
+	####	Build image
+	>	cd /mykiot-project-name
+	>	docker build --build-arg AWS_ACCESS_KEY_ID=AKIA25D5M4ZHOLQOBNWZ --build-arg AWS_SECRET_ACCESS_KEY=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 -t 749734782542.dkr.ecr.ap-southeast-1.amazonaws.com/{mykiot-core-api:20220408-v70-debian} .
+	>	 docker push 749734782542.dkr.ecr.ap-southeast-1.amazonaws.com/{mykiot-core-api:20220408-v70-debian}
+
+{mykiot-core-api:20220408-v70-debian} : new image
+DEPLOY
+	
+	#	Modify image tag in value.yaml file
+	>	helm upgrade {mykiot-core-api} . -f values.yaml -n mykiot
+
+	#	Get pods status
+	# 	kubectl get pods -l app.kubernetes.io/name=mykiot-core-api -n mykiot
+	>	kubectl get pods -l app.kubernetes.io/name={mykiot-core-api} -n mykiot
+
+	#	Exec bash shell in container
+	>	kubectl describe pod <pod_name> -n mykiot
+	>	kubectl exec -it <pod_name> --container <container_name> -n mykiot -- bash
+
+
+
+
+
+
+Version:
+	GET IMAGE VERSION
+	#	Get pod name
+	>	kubectl get pods -l app.kubernetes.io/name={mykiot-core-api} -n mykiot
+
+	#	Get Pod info
+	>	kubectl describe pod {mykiot-core-api-deployment-db64d58d5-7xxv2} -n mykiot
+
+	#	Image:          749734782542.dkr.ecr.ap-southeast-1.amazonaws.com/mykiot-core-api:20220408-v70-debian => mykiot-core-api:20220408-v70-debian
+
+Vào một con server:
+
+	> 	kubectl get pods -l app.kubernetes.io/name=mykiot-core-api -n mykiot  
+	> 	kubectl describe pod mykiot-core-api-deployment-5786f48886-2gp8q -n mykiot
+	> 	kubectl exec -it mykiot-core-api-deployment-5786f48886-2gp8q --container   mykiot-core-api -n mykiot -- bash
+
+
+Log container
+	> 	kubectl logs -c fluentbit mykiot-core-api-deployment-75f4d97859-2vhmc -n mykiot
+
+
+Restart logging
+	> 	kubectl edit cm log-aggregator-fluent-bit -n logging -o yaml    
+	>	kubectl rollout restart deploy log-aggregator-fluent-bit -n logging
+
+

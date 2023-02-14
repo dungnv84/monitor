@@ -1,0 +1,2 @@
+chmod 400 ga-firebase.pem
+ssh -i "ga-firebase.pem" ubuntu@ec2-18-142-214-228.ap-southeast-1.compute.amazonaws.com

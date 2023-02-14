@@ -1,0 +1,210 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-loki
+  namespace: monitoring
+  labels:
+    app: loki
+  annotations:
+    {}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  serviceName: grafana-loki-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: loki
+      annotations:
+        checksum/config: 5216fb48d7acfb5522a49db23c7cca7c186e54d4323328cf9fe9d71aafb612c6
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: grafana-loki
+      initContainers:
+      - name: fix-the-volume-permission
+        image: busybox
+        command:
+        - sh
+        - -c
+        # - >-
+        #   id;
+        #   ls -la /data/;
+        #   mkdir -p /data/loki;
+        - chown 10001:10001 /data/loki
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: storage
+          mountPath: /data/loki
+      containers:
+        - name: loki
+          image: "grafana/loki:2.4.1"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/loki/loki.yaml"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+            - name: storage
+              mountPath: "/data/loki"
+              subPath: 
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          resources:
+            {}
+          securityContext:
+            readOnlyRootFilesystem: true
+          env:
+      nodeSelector:
+        {}
+      affinity:
+        {}
+      tolerations:
+        []
+      terminationGracePeriodSeconds: 4800
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-loki-config
+        - name: storage
+          persistentVolumeClaim:
+            claimName: pvc-loki
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-loki-config
+  namespace: monitoring
+data:
+  loki.yaml: |- 
+    auth_enabled: false
+    compactor:
+      compaction_interval: 30m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+      # shared_store: s3
+      shared_store: filesystem
+      working_directory: /data/loki/boltdb-shipper-compactor
+    ingester:
+      chunk_block_size: 262144
+      chunk_idle_period: 3m
+      chunk_retain_period: 1m
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+      max_transfer_retries: 0
+      wal:
+        dir: /data/loki/wal
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      retention_period: 240h
+    schema_config:
+      configs:
+      - from: "2020-10-24"
+        index:
+          period: 24h
+          prefix: loki_index_
+        # object_store: aws
+        object_store: filesystem
+        schema: v11
+        store: boltdb-shipper
+    server:
+      http_listen_port: 3100
+      log_level: info
+    storage_config:
+      # aws:
+        # insecure: true
+        # s3: s3://minio:minio123@172.16.18.19:9000/loki
+        # s3forcepathstyle: true
+      filesystem: 
+        directory: /data/loki/chunks
+      boltdb_shipper:
+        active_index_directory: /data/loki/index
+        cache_location: /data/loki/cache
+        cache_ttl: 24h
+        shared_store: filesystem
+        # shared_store: s3
+    chunk_store_config: 
+      max_look_back_period: 240h
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 240h
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: grafana-loki
+  namespace: monitoring
+  labels:
+    app: loki
+rules:
+- apiGroups:      ['extensions']
+  resources:      ['podsecuritypolicies']
+  verbs:          ['use']
+  resourceNames:  [grafana-loki]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-loki
+  namespace: monitoring
+  labels:
+    app: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grafana-loki
+subjects:
+- kind: ServiceAccount
+  name: grafana-loki
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-loki
+  namespace: monitoring
+  labels:
+    app: loki
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: 3100
+  selector:
+    app: loki
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: loki
+  annotations:
+    {}
+  name: grafana-loki
+  namespace: monitoring
+automountServiceAccountToken: true

@@ -1,0 +1,32 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMvakNDQWVhZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1EY3lNREUyTURRMU5sb1hEVE15TURjeE56RTJNRFExTmxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBSlhYCkhDL3NmVE5pdFdVSzBzZmN5VHZmSTdkeExQd0xJdlpBTWNVcXFha3l2djRWamJtdk9PeFFTVnhHbktONi9MZlMKZHpEa1JEa2FYdUhwTmhudEEyK2NUeDg1TFZRWWVLOXdTZ2NONk04MUtEQTFlcjRUeEJyM1NMOFpheEVISDYyQQpIREw2Q0ZUbzZRNm9Uck5HbElFNWU1R1B1ajBlR2w4UHZBa001cG16UGlJcmRZU0NiK214RVVRdzZaY1NSamlhCmFDZHFZdS8vUHVMQ3VTa1VDaGY2bjZiRkp5dHZJRHZHREJPNW9zZm5IbDZtTmgzZUorR3E3Z1U0cmlqc1A0enEKa240QitxNHU1S24yNFhudThkUWh1ZktJZStXTndXdUZhU09zd2lVK2todjZmS3VFUnA0eFBMQWN5UThDM2M2KwptK2M3emxhUFpkTmRlaTFiSXBVQ0F3RUFBYU5aTUZjd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZQak9WTDZUWnNDbVhDc1RnejNmS2UxamNWK0NNQlVHQTFVZEVRUU8KTUF5Q0NtdDFZbVZ5Ym1WMFpYTXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBQ0FZNThzMU1RdFAvSlU0RXpCTgpxUW1JbXVlVnU4SlN5Q2FENEkxUTZTMC9tVm9zaG1ueElIYnloSGZoWWFTM0ZjSjQ3aHFSTS9Fc05iZ0ZUMDJGCjMwcUorcHlVN0pZbmoxYW9keCtFeHVmS2pDL1NUc1ZudjFxMnpJTXEwdW83UlhobHhCNmdGSk1McGllUkl6TWkKckRzVDJtZTZRNnNnNlgwK0d4MjdEQTBHRno1K2RuNzR6YjRraHEvSTlFRkpaN09SS2tMcmQxdE5IV2Q2a0NQUQpMTFB2TXBHNjRCNUVkek5Xd09rSEFGRXJTbWp5VDMxb3QvS3FrbkFyQ2dKcExmYng4WkFIYWhyRVhxK3djK3BLCmRvcXMyUE1KbVRVbnV6VEM3OVptYUFHOGdwcTY2QlNoWW9veW5oSklxYnFuTkx4VnhIZkJJRm8rY0FMNks0T1oKWnVzPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://8423399791905242000CDC8D9B1DA9B8.gr7.ap-southeast-1.eks.amazonaws.com
+  name: new-mykiot-prod.ap-southeast-1.eksctl.io
+contexts:
+- context:
+    cluster: new-mykiot-prod.ap-southeast-1.eksctl.io
+    user: ekmykiot@new-mykiot-prod.ap-southeast-1.eksctl.io
+  name: ekmykiot@new-mykiot-prod.ap-southeast-1.eksctl.io
+current-context: ekmykiot@new-mykiot-prod.ap-southeast-1.eksctl.io
+kind: Config
+preferences: {}
+users:
+- name: ekmykiot@new-mykiot-prod.ap-southeast-1.eksctl.io
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - new-mykiot-prod
+      - --region
+      - ap-southeast-1
+      command: aws
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      provideClusterInfo: false
+

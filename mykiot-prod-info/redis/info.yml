@@ -1,0 +1,2 @@
+REDIS_HOST: redis-nlb-4d2e0c41baf4f211.elb.ap-southeast-1.amazonaws.com
+REDIS_PASS: ZMZa7C5B8ppdnGdn9JJx

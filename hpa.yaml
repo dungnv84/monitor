@@ -1,0 +1,38 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  annotations:
+    autoscaling.alpha.kubernetes.io/conditions: '[{"type":"AbleToScale","status":"True","lastTransitionTime":"2022-10-25T08:54:55Z","reason":"ReadyForNewScale","message":"recommended
+      size matches current size"},{"type":"ScalingActive","status":"True","lastTransitionTime":"2023-02-02T01:44:11Z","reason":"ValidMetricFound","message":"the
+      HPA was able to successfully calculate a replica count from cpu resource utilization
+      (percentage of request)"},{"type":"ScalingLimited","status":"True","lastTransitionTime":"2023-02-02T00:41:21Z","reason":"TooManyReplicas","message":"the
+      desired replica count is more than the maximum replica count"}]'
+    autoscaling.alpha.kubernetes.io/current-metrics: '[{"type":"Resource","resource":{"name":"memory","currentAverageUtilization":8,"currentAverageValue":"138418176"}},{"type":"Resource","resource":{"name":"cpu","currentAverageUtilization":103,"currentAverageValue":"824m"}}]'
+    autoscaling.alpha.kubernetes.io/metrics: '[{"type":"Resource","resource":{"name":"memory","targetAverageUtilization":80}}]'
+    meta.helm.sh/release-name: product-webhook
+    meta.helm.sh/release-namespace: new-mykiot-prod
+  creationTimestamp: "2022-10-25T08:54:40Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: product-webhook
+    app.kubernetes.io/version: 6.1.23
+    helm.sh/chart: new-mykiot
+    helm.sh/heritage: Helm
+    helm.sh/release: product-webhook
+  name: product-webhook
+  namespace: new-mykiot-prod
+  resourceVersion: "63940865"
+  uid: d5164b07-554e-48c4-b0fb-b486a33d22a1
+spec:
+  maxReplicas: 5
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: product-webhook
+  targetCPUUtilizationPercentage: 80
+status:
+  currentCPUUtilizationPercentage: 103
+  currentReplicas: 2
+  desiredReplicas: 2
+  lastScaleTime: "2023-02-02T04:06:36Z"

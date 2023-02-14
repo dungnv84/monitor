@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: consul-k8s-consul-sync-catalog
+  namespace: default
+  labels:
+    app.kubernetes.io/name: consul
+    app.kubernetes.io/instance: consul
+    component: sync-catalog
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: consul-k8s-consul-sync-catalog
+  labels:
+    app.kubernetes.io/name: consul
+    app.kubernetes.io/instance: consul
+    component: sync-catalog
+rules:
+  - apiGroups: [""]
+    resources:
+      - services
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+      - create
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: consul-k8s-consul-sync-catalog
+  labels:
+    app.kubernetes.io/name: consul
+    app.kubernetes.io/instance: consul
+    component: sync-catalog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: consul-k8s-consul-sync-catalog
+subjects:
+  - kind: ServiceAccount
+    name: consul-k8s-consul-sync-catalog
+    namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul-k8s-consul-sync-catalog
+  namespace: default
+  labels:
+    app.kubernetes.io/name: consul
+    app.kubernetes.io/instance: consul
+    component: sync-catalog
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: consul
+      app.kubernetes.io/instance: consul
+      component: sync-catalog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: consul
+        app.kubernetes.io/instance: consul
+        component: sync-catalog
+      annotations:
+        consul.hashicorp.com/connect-inject: "false"
+    spec:
+      serviceAccountName: consul-k8s-consul-sync-catalog
+      volumes:
+      - name: consul-data
+        emptyDir:
+          medium: "Memory"
+      containers:
+        - name: sync-catalog
+          image: hashicorp/consul-k8s-control-plane
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CONSUL_HTTP_ADDR
+              value: http://$(HOST_IP):8500
+          volumeMounts:
+            - mountPath: /consul/login
+              name: consul-data
+              readOnly: true
+          command:
+            - "/bin/sh"
+            - "-ec"
+            - |
+              consul-k8s-control-plane sync-catalog \
+                -consul-api-timeout=5s \
+                -log-level=info \
+                -log-json=false \
+                -k8s-default-sync=true \
+                -to-consul=false \
+                -consul-domain=consul \
+                -allow-k8s-namespace="*" \
+                -deny-k8s-namespace="kube-system" \
+                -deny-k8s-namespace="kube-public" \
+                -k8s-write-namespace=${NAMESPACE} \
+                -node-port-sync-type=ExternalFirst \
+                -consul-node-name=k8s-sync
+          livenessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            failureThreshold: 5
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 50m
+              memory: 50Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi

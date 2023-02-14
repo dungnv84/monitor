@@ -1,0 +1,35 @@
+# redis 01
+auth: Ne#m5k8o8&cityXrt
+
+# redis 02
+auth: vik4GvstVAST0yYkpB4tDs8h7NAW374o
+redis-host: master.redis-prod-new-mykiot-2.cr7jmq.apse1.cache.amazonaws.com:6379
+
+master.redis-prod-new-mykiot.cr7jmq.apse1.cache.amazonaws.com:6379
+replica.redis-prod-new-mykiot.cr7jmq.apse1.cache.amazonaws.com:6379
+
+
+kubectl run redis-cli --image gcr.io/kubernetes-e2e-test-images/dnsutils:1.3 --attach --leave-stdin-open --rm -it --command -- sh
+
+kubectl run redis-cli --image redis:6.2 --attach --leave-stdin-open --rm -it --command -- bash
+
+kubectl run ubuntu-2204 --image ubuntu:22.04 --attach --leave-stdin-open --rm -it --command -- bash
+
+
+kubectl run kafka-cli --image 623127558067.dkr.ecr.ap-southeast-1.amazonaws.com/devops:v1.0.2 --attach --leave-stdin-open --rm -it --command -- bash
+
+623127558067.dkr.ecr.ap-southeast-1.amazonaws.com/devops:v1.0.1
+
+redis-cli -h master.new-mykiot-prod-redis.cr7jmq.apse1.cache.amazonaws.com -p 6379
+
+src/redis-cli -h master.new-mykiot-prod-redis.cr7jmq.apse1.cache.amazonaws.com --tls -a Ne#m5k8o8!cityXrt -p 6379
+
+
+curl -v telnet://master.new-mykiot-prod-redis.cr7jmq.apse1.cache.amazonaws.com:6379
+
+cache.m6g.xlarge
+
+
+kafka-topics.sh \
+    --bootstrap-server ip-10-20-25-167.ap-southeast-1.compute.internal:9092 \
+    --list

@@ -1,0 +1,2 @@
+chmod 400 data-proxy.pem
+ssh -i "data-proxy.pem" ubuntu@ec2-13-250-53-102.ap-southeast-1.compute.amazonaws.com

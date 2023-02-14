@@ -1,0 +1,13 @@
+[default]
+region = ap-southeast-1
+#region = ap-east-1
+output = yaml
+
+[profile mykiotprod]
+sso_start_url = https://d-966700c2ae.awsapps.com/start/
+sso_region = ap-southeast-1
+sso_account_id = 749734782542
+sso_role_name = AWSPowerUserAccess
+region = ap-southeast-1
+output = yaml
+

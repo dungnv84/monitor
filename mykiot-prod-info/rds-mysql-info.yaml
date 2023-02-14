@@ -1,0 +1,21 @@
+#DB instance
+instance_name: new-mykiot-prod-mysql
+user: newmykiotprod
+pass: N!#myH8866CI
+
+database name: newmykiot
+
+host-master: new-mykiot-prod-mysql.cwahdqexhsp6.ap-southeast-1.rds.amazonaws.com
+
+host-private: new-mykiot-prod-mysql-slave.cwahdqexhsp6.ap-southeast-1.rds.amazonaws.com
+
+# DB prod
+user: adnewmykiot
+pass: w8HTpMW2Kaj5R*SybB9s5O
+DB_NAME: mykiot_system
+
+# test connect master
+connect: mysql -h new-mykiot-prod-mysql.cwahdqexhsp6.ap-southeast-1.rds.amazonaws.com -P 3306 -u adnewmykiot -p
+
+#test connect slave
+connect: mysql -h new-mykiot-prod-mysql-slave.cwahdqexhsp6.ap-southeast-1.rds.amazonaws.com -P 3306 -u adnewmykiot -p

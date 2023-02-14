@@ -1,0 +1,10 @@
+TO5yrrJKa18povW1
+mykiot_usr01
+
+mongodb+srv://mykiot_usr01:TO5yrrJKa18povW1@mykiot-cluster01-pl-0.ermoq.mongodb.net/?retryWrites=true&w=majority
+
+kubectl run mongo-cli --image mongo:5.0 --attach --leave-stdin-open --rm -it --command -- sh
+
+hashicorp/consul:1.10
+
+kubectl run consul-cli --image hashicorp/consul:1.10 --attach --leave-stdin-open --rm -it --command -- sh

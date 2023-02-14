@@ -1,0 +1,9 @@
+ip-10-20-25-167.ap-southeast-1.compute.internal:9094,ip-10-20-30-18.ap-southeast-1.compute.internal:9094,ip-10-20-35-11.ap-southeast-1.compute.internal:9094
+
+
+ec2-54-255-221-244.ap-southeast-1.compute.amazonaws.com:9092
+ec2-13-213-42-180.ap-southeast-1.compute.amazonaws.com:9092
+ec2-13-214-162-49.ap-southeast-1.compute.amazonaws.com:9092
+
+kafka check:
+ kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic product --from-beginning

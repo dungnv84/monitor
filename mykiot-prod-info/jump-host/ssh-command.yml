@@ -1,0 +1,8 @@
+chmod 400 devops-jump.pem
+ssh -i "devops-jump.pem" ubuntu@ec2-54-151-249-205.ap-southeast-1.compute.amazonaws.com
+
+
+# huonng dan
+# sau khi ssh vao server
+#1. sudo -i
+#2. kubectl get po -n new-mykiot-prod

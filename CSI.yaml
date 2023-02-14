@@ -1,0 +1,51 @@
+1. NFS CSI driver for Kubernetes
+# https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.1.0.md
+# Install with helm:
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm repo update
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system \
+  --version v4.1.0 \
+  --set controller.replicas=1 \
+  --set controller.runOnControlPlane=true
+
+2.EFS CSI
+
+helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+helm repo update
+helm upgrade --install aws-efs-csi-driver --namespace kube-system aws-efs-csi-driver/aws-efs-csi-driver
+
+3. EBS CSI
+
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+
+helm upgrade --install aws-ebs-csi-driver \
+    --namespace kube-system \
+    aws-ebs-csi-driver/aws-ebs-csi-driver
+
+
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-monitoring
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  iopsPerGB: "5"
+  fsType: ext4
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-grafana
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-monitoring
+  resources:
+    requests:
+      storage: 5Gi  
